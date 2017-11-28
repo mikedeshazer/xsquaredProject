@@ -234,7 +234,6 @@ if(typeof data.status =="string"){
     // split the data set into ohlc and volume
     var ohlc = [],
         volume = [],
-        dataLength = data.length,
         // set the allowed units for data grouping
         groupingUnits = [[
             'week',                         // unit name
@@ -242,30 +241,38 @@ if(typeof data.status =="string"){
         ], [
             'month',
             [1, 2, 3, 4, 6]
-        ]],
+        ]];
 
-        i = 0;
+    data.forEach(function(item) {
+        var itemDate = item[0],
+            itemOpen = item[1],
+            itemHigh = item[2],
+            itemLow = item[3],
+            itemClose = item[4],
+            itemVolume = item[5];
 
-    for (i; i < dataLength; i += 1) {
-        ohlc.push([
-            data[i][0], // the date
-            data[i][1], // open
-            data[i][2], // high
-            data[i][3], // low
-            data[i][4] // close
-        ]);
+        var isRising = (itemClose > itemOpen),
+            itemColor = isRising ? '#00D66F' : '#F83922';
 
-        volume.push([
-            data[i][0], // the date
-            data[i][5] // the volume
-        ]);
-    }
+        ohlc.push({
+            x: itemDate,
+            open: itemOpen,
+            high: itemHigh,
+            low: itemLow,
+            close: itemClose,
+            color: itemColor
+        });
 
+        volume.push({
+            x: itemDate,
+            y: itemVolume,
+            color: itemColor
+        });
+    });
 
-    // create the chart
-
-
-
+    /**
+     * Create the chart
+     */
     Highcharts.theme = {
    colors: ['#2b908f', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee',
       '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
@@ -331,6 +338,7 @@ if(typeof data.status =="string"){
    },
    tooltip: {
       backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      borderColor: '#999999',
       style: {
          color: '#F0F0F0'
       }
@@ -348,7 +356,8 @@ if(typeof data.status =="string"){
          fillColor: '#505053'
       },
       candlestick: {
-         lineColor: 'white'
+         lineColor: '#F83922', // dropping candles line
+         upLineColor: '#00D66F' // rising candles line
       },
       errorbar: {
          color: 'white'
