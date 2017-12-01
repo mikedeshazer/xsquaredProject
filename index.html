@@ -14,6 +14,12 @@
 <script src="js/modules/drag-panes.js"></script>
 <script src="js/modules/exporting.js"></script>
 
+<!-- Indicators -->
+<script src="js/plugins/indicators/indicators.js"></script>
+<script src="js/plugins/indicators/sma.js"></script>
+<script src="js/plugins/indicators/ema.js"></script>
+<script src="js/plugins/indicators/rsi.js"></script>
+<script src="js/plugins/indicators/atr.js"></script>
 
 <script src="js/amcharts.js"></script>
 <script src="https://www.amcharts.com/lib/3/serial.js"></script>
@@ -202,8 +208,18 @@ Period
 
 </div>
 
-<div id="container" style="height: 400px; min-width: 310px"></div>
+<div class="chart-wrapper">
+    <!-- Indicators control -->
+    <div id="indicators_box" class="chart-indicators">
+        <div class="dropdown">
+            <div class="dropdown-dark">
+                <select id="indicators_control" class="dropdown-select"></select>
+            </div>
+        </div>
+    </div>
 
+    <div id="container" style="height: 600px; min-width: 310px"></div>
+</div>
 
 <div id="chartdiv" style="background-color: #373535; color: #fff;"></div>
 <br><br>
