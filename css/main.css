@@ -25,6 +25,18 @@ input{
     margin-bottom:10px;
     min-width:200px;
 }
+
+.chart-wrapper {
+  position: relative;
+}
+
+.chart-indicators {
+  position: absolute;
+  z-index: 9;
+  top: 343px;
+  left: 10px;
+}
+
 .checkout-wrap {
   color: #444;
   font-family: 'PT Sans Caption', sans-serif;
