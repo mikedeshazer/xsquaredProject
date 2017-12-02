@@ -26,7 +26,16 @@ input{
     min-width:200px;
 }
 
+.chart-wrapper {
+  position: relative;
+}
 
+.chart-indicators {
+  position: absolute;
+  z-index: 9;
+  top: 343px;
+  left: 10px;
+}
 
 /*
  * Copyright (c) 2012-2013 Thibaut Courouble
