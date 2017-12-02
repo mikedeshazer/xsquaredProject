@@ -1,4 +1,3 @@
-
 (function($) {
 
     /**
@@ -28,6 +27,7 @@
     initCandleChart();
     initChartIndicators();
     listenForChartUpdate();
+    circlesNavActivate();
 
     /**
      * Indicators select box initialization
@@ -113,7 +113,6 @@
 
                     // Function to process (sort and calculate cummulative volume)
                     function processData(list, type, desc) {
-
                         // Convert to data points
                         for (var i = 0; i < list.length; i++) {
                             list[i] = {
@@ -137,14 +136,13 @@
 
                         // Calculate cummulative volume
                         if (desc) {
-                            for(var i = list.length - 1; i >= 0; i--) {
+                            for (var i = list.length - 1; i >= 0; i--) {
                                 if (i < (list.length - 1)) {
                                     list[i].totalvolume = list[i+1].totalvolume + list[i].volume;
                                 }
                                 else {
                                     list[i].totalvolume = list[i].volume;
                                 }
-
                                 var dp = {};
                                 dp["value"] = list[i].value;
                                 dp[type + "volume"] = list[i].volume;
@@ -153,14 +151,13 @@
                             }
                         }
                         else {
-                            for(var i = 0; i < list.length; i++) {
+                            for (var i = 0; i < list.length; i++) {
                                 if (i > 0) {
                                     list[i].totalvolume = list[i-1].totalvolume + list[i].volume;
                                 }
                                 else {
-                                  list[i].totalvolume = list[i].volume;
+                                    list[i].totalvolume = list[i].volume;
                                 }
-
                                 var dp = {};
                                 dp["value"] = list[i].value;
                                 dp[type + "volume"] = list[i].volume;
@@ -177,9 +174,9 @@
 
                     $("#md-buy-tbody").html('');
                     $("#md-sell-tbody").html('');
-
+            
                     for (i in data.bids) {
-                        if (i <15) {
+                        if (i < 15) {
                             renderSellBuyTD("#md-buy-tbody", data.bids[i]['volume'], data.bids[i]['value']);
                         }
                     }
@@ -196,7 +193,7 @@
             },
             "graphs": [{
                 "id": "bids",
-                "fillAlphas": 0.1,
+                "fillAlphas": 0.8,
                 "lineAlpha": 1,
                 "lineThickness": 2,
                 "lineColor": "#0f0",
@@ -205,7 +202,7 @@
                 "balloonFunction": balloon
             }, {
                 "id": "asks",
-                "fillAlphas": 0.1,
+                "fillAlphas": 0.8,
                 "lineAlpha": 1,
                 "lineThickness": 2,
                 "lineColor": "#f00",
@@ -235,24 +232,23 @@
                 "textAlign": "left"
             },
             "valueAxes": [{
-                "title": "Volume"
+                "axisAlpha": 0,
+                "gridThickness": 0,
+                "labelsEnabled": false
             }],
             "categoryAxis": {
-                "title": "Price (BTC/ETH)",
-                "minHorizontalGap": 100,
-                "startOnAxis": true,
-                "showFirstLabel": false,
-                "showLastLabel": false
+                "axisAlpha": 0,
+                "gridThickness": 0,
+                "labelsEnabled": false
             },
             "export": {
-                "enabled": true
+                "enabled": false
             }
         });
     }
 
     function balloon(item, graph) {
         var txt;
-
         if (graph.id == "asks") {
             txt = "Ask: <strong>" + formatNumber(item.dataContext.value, graph.chart, 4) + "</strong><br />"
             + "Total volume: <strong>" + formatNumber(item.dataContext.askstotalvolume, graph.chart, 4) + "</strong><br />"
@@ -263,19 +259,15 @@
             + "Total volume: <strong>" + formatNumber(item.dataContext.bidstotalvolume, graph.chart, 4) + "</strong><br />"
             + "Volume: <strong>" + formatNumber(item.dataContext.bidsvolume, graph.chart, 4) + "</strong>";
         }
-
         return txt;
     }
 
     function formatNumber(val, chart, precision) {
-        return AmCharts.formatNumber(
-            val, 
-            {
-                precision: precision ? precision : chart.precision, 
-                decimalSeparator: chart.decimalSeparator,
-                thousandsSeparator: chart.thousandsSeparator
-            }
-        );
+        return AmCharts.formatNumber(val, {
+            precision: precision ? precision : chart.precision, 
+            decimalSeparator: chart.decimalSeparator,
+            thousandsSeparator: chart.thousandsSeparator
+        });
     }
 
     function placeOrder() {
@@ -289,22 +281,19 @@
         renderCandleChart(whichExchange, whichCurrency, whichPeriod);
     }
 
-    function updateOrderBook() {
+    function updateOrderBook(){
         whichExchange = $('#exchange').val();
         whichCurrency = $('#currencypair').val();
         renderOrderBook(whichExchange, whichCurrency);
     }
 
     function renderCandleChart(exchange, currencypair, period) {
-        // Set candle chart id globally
-        props.seriesCandleId = currencypair;
+        props.seriesCandleId = period;
 
-        var url = props.apiUrl+exchange+'.php?currencypair='+currencypair+"&period="+period;
-
-        $.getJSON(url, function(data) {
-            console.log(data);
+        $.getJSON(props.apiUrl+exchange+'.php?currencypair='+currencypair+"&period="+period, function (data) {
+            console.log(data)
             hideLoading();
-            
+
             if (typeof data.status =="string") {
                 alert(data.msg);
                 return;
@@ -347,9 +336,7 @@
                 });
             });
 
-            /**
-             * Create the chart
-             */
+            // Create the chart
             Highcharts.theme = {
                 colors: [
                     '#2b908f',
@@ -365,13 +352,7 @@
                     '#aaeeee'
                 ],
                 chart: {
-                    backgroundColor: {
-                        linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-                        stops: [
-                            [0, '#2a2a2b'],
-                            [1, '#3e3e40']
-                        ]
-                    },
+                    backgroundColor: "#2f3e47",
                     style: {
                         fontFamily: '\'Unica One\', sans-serif'
                     },
@@ -471,6 +452,7 @@
                         color: '#707073'
                     }
                 },
+
                 drilldown: {
                     activeAxisLabelStyle: {
                         color: '#F0F0F3'
@@ -533,7 +515,7 @@
                     maskFill: 'rgba(255,255,255,0.1)',
                     series: {
                         color: '#7798BF',
-                    lineColor: '#A6C7ED'
+                        lineColor: '#A6C7ED'
                     },
                     xAxis: {
                         gridLineColor: '#505053'
@@ -553,7 +535,7 @@
 
                 // special colors for some of the
                 legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
-                background2: '#505053',
+                background2: 'red',
                 dataLabelsColor: '#B0B0B3',
                 textColor: '#C0C0C0',
                 contrastTextColor: '#F0F0F3',
@@ -564,6 +546,8 @@
             Highcharts.setOptions(Highcharts.theme);
 
             props.chart = Highcharts.stockChart('container', {
+                panning: true,
+
                 rangeSelector: {
                     selected: 1
                 },
@@ -610,7 +594,8 @@
                     name: currencypair,
                     data: ohlc,
                     dataGrouping: {
-                        units: groupingUnits
+                        units: groupingUnits,
+                        enabled: false
                     }
                 }, {
                     id: props.seriesVolumeId,
@@ -619,7 +604,8 @@
                     data: volume,
                     yAxis: 1,
                     dataGrouping: {
-                        units: groupingUnits
+                        units: groupingUnits,
+                        enabled: false
                     }
                 }],
 
@@ -662,9 +648,10 @@
 
     function listenForChartUpdate() {
         $('#hello select').on("change", function() {
-            showLoading()
+            showLoading();
             updateCandleChart();
             updateOrderBook(whichExchange, whichCurrency);
+            getTicker();
         });
     }
 
@@ -674,6 +661,7 @@
         whichPeriod = $('#period').val();
         renderCandleChart(whichExchange, whichCurrency, whichPeriod);
         renderOrderBook(whichExchange, whichCurrency);
+        getTicker();
     }
 
     function showLoading() {
@@ -689,30 +677,29 @@
     }
 
     function userAuth() {
-        if (localStorage.getItem('oauth') != null && localStorage.getItem('oauth') != "") {
+        if (localStorage.getItem('oauth') != null && localStorage.getItem('oauth') != ""){
             oauthString = "?oauth="+ localStorage.getItem('oauth') ;
         }
-        else {
+        else{
             oauthString= "";
         }
-
         $.ajax({
-            url: props.apiUrl+'getUserInfo.php'+oauthString,
-            complete: function(transport) {
+            url:props.apiUrl+'getUserInfo.php'+oauthString,
+            complete:function(transport){
                 theResp = $.parseJSON(transport.responseText);
-                
-                if (theResp['status'] =='success') {
+                if(theResp['status'] =='success'){
                     $('#user').html('Mock Portfolio: ');
                     $('#userBalance').html("$"+ numberWithCommas(parseFloat(theResp.balanceInfo['totalAssets']).toFixed(2)));
-                    $('#signer').html("<a href='javascript:logout()'>Logout</>");
+                    $('#signer').html("<a href='javascript:logout()' style='font-size:12px;opacity:.8;text-decoration:none; color:#fff'>Logout</>");
+                    $('#signer2').hide();
                 }
-                else {
+                else{
                     localStorage.setItem('oauth', theResp.user[0]['oauth']);
                     $('#userBalance').html("$"+ numberWithCommas(parseFloat(theResp.balanceInfo['totalAssets']).toFixed(2)));
                 }
 
-                if (typeof theResp['orders'] == "object") {
-                    for (i in theResp['orders']) {
+                if(typeof theResp['orders'] == "object"){
+                    for(i in theResp['orders']){
                         thisOrder = theResp['orders'][i];
                         renderActiveOrders(thisOrder['rId'], thisOrder['timestamp'], thisOrder['type'], thisOrder['amount'], thisOrder['price'], thisOrder['symbol']);
                     }
@@ -721,41 +708,84 @@
         });
     }
 
+    function circlesNavActivate() {
+        $('.checkout-bar li:nth(0)').on('click', function(){
+            $('.checkout-bar li').removeClass( 'active');
+            $(this).addClass('active');
+            $('#mockOrders').hide();
+            $('#hello, #container').show('slow');
+        });
+
+        $('.checkout-bar li:nth(1)').on('click', function(){
+            $('.checkout-bar li').removeClass('active');
+            $(this).addClass('active');
+            $('#mockOrders').show('slow');
+            $('#hello, #container').hide();
+            $('.mockButton').show();
+            $('.realButton').hide();
+        });
+
+        $('.checkout-bar li:nth(2)').on('click', function(){
+            $('.checkout-bar li').removeClass('active');
+            $(this).addClass('active');
+            $('#mockOrders').show('slow');
+            $('#hello, #container').hide();
+            $('.mockButton').hide();
+            $('.realButton').show();
+        });
+    }
+
+    function getTicker(theCurrencyPair) {
+        $.ajax({
+            url:props.apiUrl+'ticker.php',
+            data:{
+                'currencypair' : $('#currencypair').val()
+            },
+            method:"POST",
+            complete:function(transport){
+                theRespPair = $.parseJSON(transport.responseText);
+                $('#tickerPrice').html(numberWithCommas(parseFloat(theRespPair['ticker']['price']).toFixed(2)));
+                amountChanged =parseFloat(theRespPair['ticker']['change']);
+                percentageChanged = amountChanged/parseFloat(theRespPair['ticker']['price']);
+                $('#tickerChange').html( percentageChanged.toFixed(2)+"%");
+                $('#tickerCurrency').html($('#currencypair').val().split("USD")[0]);
+            }
+        });
+    }
+
     function register() {
-        if ($('#signupEmail').val().length < 5) {
+        if($('#signupEmail').val().length < 5){
             alert("Please enter a valid email")
             return;
         }
-
-        if ($('#signupPw').val().length < 2) {
+        if($('#signupPw').val().length < 2){
             alert("Please enter a valid password")
             return;
         }
 
         $('#signupForm button').html('signing up...')
 
-        if (localStorage.getItem('oauth') != null && localStorage.getItem('oauth') != "") {
+        if(localStorage.getItem('oauth') != null && localStorage.getItem('oauth') != ""){
             oauthString = "?oauth="+ localStorage.getItem('oauth') ;
         }
-        else {
+        else{
             oauthString= "";
         }
 
         $.ajax({
-            url: props.apiUrl+'register.php'+oauthString,
-            data: {
-                email: $('#signupEmail').val(),
-                pw: $('#signupPw').val()
+            url:props.apiUrl+'register.php'+oauthString,
+            data:{
+                email:$('#signupEmail').val(),
+                pw:$('#signupPw').val()
             },
-            method: "POST",
-            complete: function(transport) {
+            method:"POST",
+            complete:function(transport){
                 theResp = $.parseJSON(transport.responseText);
-                
-                if (theResp['status'] =='success') {
+                if(theResp['status'] =='success'){
                     $('#signupForm button').html('Please wait')
                     window.location=window.location.href;
                 }
-                else {
+                else{
                     alert("Sorry that email is already taken or invalid.");
                     $('#signupForm button').html('Finish')
                 }
@@ -764,32 +794,30 @@
     }
 
     function login() {
-        if ($('#loginEmail').val().length < 5) {
+        if($('#loginEmail').val().length < 5){
             alert("Please enter a valid email")
             return;
         }
-
-        if ($('#loginPw').val().length < 2) {
+        if($('#loginPw').val().length < 2){
             alert("Please enter a valid password")
             return;
         }
 
-        $('#loginForm button').html('logging in...')
+        $('#loginForm button').html('logging in...');
 
         $.ajax({
-            url: props.apiUrl+'login.php',
+            url:props.apiUrl+'login.php',
             data:{
                 email:$('#loginEmail').val(),
                 pw:$('#loginPw').val()
             },
             method:"POST",
-            complete:function(transport) {
+            complete:function(transport){
                 theResp = $.parseJSON(transport.responseText);
-                
-                if (theResp['status'] =='success') {
-                    $('#loginForm button').html('Please wait')
+                if(theResp['status'] =='success'){
+                    $('#loginForm button').html('Please wait')              
                 }
-                else {
+                else{
                     alert("Something went wrong. Please try again");
                     $('#signupForm button').html('Finish')
                 }
@@ -799,8 +827,8 @@
 
     function logout() {
         $.ajax({
-            url: props.apiUrl+'logout.php',
-            complete: function(transport) {
+            url:props.apiUrl+'logout.php',
+            complete:function(transport){
                 localStorage.setItem('oauth', "");
                 window.location=window.location.href;
             }
@@ -816,8 +844,8 @@
         $('#order-'+orderId).remove();
 
         $.ajax({
-            url: props.apiUrl+'cancelMockOrder.php?oauth='+localStorage.getItem('oauth')+'&orderId='+orderId,
-            complete: function(transport) {
+            url:props.apiUrl+'cancelMockOrder.php?oauth='+localStorage.getItem('oauth')+'&orderId='+orderId,
+            complete:function(transport){
                 alert("Order Cancelled");
                 console.log(transport.responseText);
             }
@@ -826,18 +854,17 @@
 
     function placeMockBuyOrder() {
         $('#mockBuyButton').html("Placing order...");
-
         buyPrice = $('#buyPrice').val();
         buyAmount= $('#buyAmount').val();
         buySymbol = $('#currencypair').val().split("USD")[0];
         buyType = "buy";
 
-        if (isNaN(buyPrice) || buyPrice=="") {
+        if(isNaN(buyPrice) || buyPrice==""){
             alert("Please enter a buy price that is a number")
             return;
         }
 
-        if (isNaN(buyAmount) || buyAmount=="") {
+        if(isNaN(buyAmount || buyAmount=="")){
             alert("Please enter a buy amount that is a number")
             return;
         }
@@ -847,18 +874,17 @@
 
     function placeMockSellOrder() {
         $('#mockSellButton').html("Placing order...");
-
         sellPrice = $('#sellPrice').val();
         sellAmount= $('#sellAmount').val();
         sellSymbol = $('#currencypair').val().split("USD")[0];
         sellType = "sell";
 
-        if (isNaN(sellPrice) || sellPrice=="") {
+        if(isNaN(sellPrice) || sellPrice==""){
             alert("Please enter a sell price that is a number")
             return;
         }
 
-        if (isNaN(sellAmount) || sellAmount=="") {
+        if(isNaN(sellAmount) || sellAmount==""){
             alert("Please enter a sell amount that is a number")
             return;
         }
@@ -867,34 +893,33 @@
     }
 
     function placeMockOrder(symbol, price, amount, type) {
-        if (localStorage.getItem('oauth') != null && localStorage.getItem('oauth') != "") {
+        if(localStorage.getItem('oauth') != null && localStorage.getItem('oauth') != ""){
             theOrderData= {"symbol":symbol,"price":price,"amount":amount, "type":type, "oauth": localStorage.getItem('oauth')};
         }
-        else {
+        else{
             theOrderData= {"symbol":symbol,"price":price,"amount":amount, "type":type};
         }
 
         $.ajax({
-            url: props.apiUrl+'createMockOrder.php',
+            url:props.apiUrl+'createMockOrder.php',
             data:theOrderData,
-            complete:function(transport) {
+            complete:function(transport){
                 $('#mockBuyButton').html("Placing Mock Order");
                 $('#mockSellButton').html("Placing Mock Order");
 
                 theResp1 = $.parseJSON(transport.responseText);
                 console.log(theResp1);
 
-                if (theResp1['status']=="fail") {
+                if(theResp1['status']=="fail"){
                     alert(theResp1['msg']);
                     return;
                 }
-
                 $('#userBalance').html("$"+ numberWithCommas(theResp1.balanceInfo['totalAssets'].toFixed(2)));
 
-                if (theResp1['filledStatus']=="filled") {
+                if(theResp1['filledStatus']=="filled"){
                     alert("Order has been instantly filled ");
                 }
-                else {
+                else{
                     renderActiveOrders(theResp1['data']['rId'], theResp1['data']['timestamp'], theResp1['data']['type'], theResp1['data']['amount'], theResp1['data']['price'], theResp1['data']['symbol']);
                     alert("Your order is now active. Once the market reaches your offer, it will be filled. You can view your order or cancel it below in 'Active Orders'.");
                 }
